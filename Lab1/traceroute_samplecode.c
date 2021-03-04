@@ -12,6 +12,14 @@
 #include<netdb.h>
 #include<sys/time.h>
 
+typedef struct{
+    unsigned char Type;
+    unsigned char Code;
+    unsigned char Checksum[2];
+    unsigned char Identifier[2];
+    signed char Sequence_Number[2];
+}ICMPHeader;
+
 char *DNSLookup(char *host){
     // TODO
     struct addrinfo *addr;
@@ -64,8 +72,10 @@ int main(int argc, char *argv[]){
     for(int h = 1; h < maxHop; h++){
         // Set TTL
         // TODO
-
-        for(int c = 0; c < count; c++){
+	int TTL = h;
+	setsockopt(icmpfd, IPPROTO_IP, IP_TTL, &TTL, sizeof(TTL));
+        
+	for(int c = 0; c < count; c++){
             // Set ICMP Header
             // TODO
 
