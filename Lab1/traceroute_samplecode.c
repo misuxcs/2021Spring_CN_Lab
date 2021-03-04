@@ -44,6 +44,15 @@ int main(int argc, char *argv[]){
     
     // Set timeout
     // TODO
+    struct timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+    if(setsockopt(icmpfdd, SOL_SOLKET, SO_RCVTIMEO, sizeof(timeout)) < 0){
+    	error("setsockopt failed\n");
+    }
+    if(setsockopt(icmpfdd, SOL_SOLKET, SO_SNDTIMEO, sizeof(timeout)) < 0){
+    	error("setsockopt failed\n");
+    }
 
     int finish = 0; // if the packet reaches the destination
     int maxHop = 64; // maximum hops
