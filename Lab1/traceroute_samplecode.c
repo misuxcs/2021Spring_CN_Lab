@@ -78,10 +78,14 @@ int main(int argc, char *argv[]){
 	for(int c = 0; c < count; c++){
             // Set ICMP Header
             // TODO
-
+		ICMPHeader icmpHeader;
+		icmpHeader.Type = 8;
+		icmpHeader.Code = 0;
+		icmpHeader.Identifier = 318;
+		icmpHeader.Sequence_Number = c*h;  
             // Checksum
-            // TODO
-            
+            // TODO 
+		icmpHeader.Checksum = ;
             // Send the icmp packet to destination
             // TODO
         
