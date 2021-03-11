@@ -12,13 +12,13 @@
 #include<netdb.h>
 #include<sys/time.h>
 
-typedef struct{
+typedef struct icmp{
     unsigned char Type;
     unsigned char Code;
     unsigned char Checksum[2];
     unsigned char Identifier[2];
     signed char Sequence_Number[2];
-}ICMPHeader;
+};
 
 char *DNSLookup(char *host){
     // TODO
@@ -62,10 +62,10 @@ int main(int argc, char *argv[]){
     struct timeval timeout;
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
-    if(setsockopt(icmpfdd, SOL_SOLKET, SO_RCVTIMEO, sizeof(timeout)) < 0){
+    if(setsockopt(icmpfd, SOL_SOLKET, SO_RCVTIMEO, sizeof(timeout)) < 0){
     	error("setsockopt failed\n");
     }
-    if(setsockopt(icmpfdd, SOL_SOLKET, SO_SNDTIMEO, sizeof(timeout)) < 0){
+    if(setsockopt(icmpfd, SOL_SOLKET, SO_SNDTIMEO, sizeof(timeout)) < 0){
     	error("setsockopt failed\n");
     }
 
@@ -85,18 +85,24 @@ int main(int argc, char *argv[]){
 	for(int c = 0; c < count; c++){
             // Set ICMP Header
             // TODO
-		ICMPHeader icmpHeader;
-		icmpHeader.Type = 8;
-		icmpHeader.Code = 0;
-		icmpHeader.Identifier = 318;
-		icmpHeader.Sequence_Number = c*h;  
-            // Checksum
-            // TODO 
-		icmpHeader.Checksum = ;
-            // Send the icmp packet to destination
+	    sendICMP.Type = 8;
+	    sendICMP.Code = 0;
+	    sendICMP.Identifier = 318;
+	    sendICMP.Sequence_Number = seq;
+	    seq++;
+            
+	    // Checksum
             // TODO
-        
-            // Recive ICMP reply, need to check the identifier and sequence number
+	    icmpHeader.Checksum = ;
+            
+	    // Send the icmp packet to destination
+            // TODO
+       	    if(sendto(icmpfd, (void *)sendICMP, sizeof(sendICMP), 0, (struct sockaddr*)&sendAddr, sizeof(sockaddr)) < 0){
+		error("Send icmp packet failed!");
+	    }
+	    gettimeofday(&begin, NULL);
+            
+	    // Recive ICMP reply, need to check the identifier and sequence number
             struct ip *recvIP;
             struct icmp *recvICMP;
             struct sockaddr_in recvAddr;
@@ -107,9 +113,18 @@ int main(int argc, char *argv[]){
             char srcIP[4][32];
             float interval[4] = {};
             memset(&recvAddr, 0, sizeof(struct sockaddr_in));
-            // TODO
-
-            // Get source hostname and ip address 
+            
+	    // TODO
+	    // Receive icmp packet
+       	    if(recvfrom(icmpfd, recvBuff, sizeof(recvBuff), 0, (struct sockaddr*)&recvAddr, &recvLength) < 0){
+		error("Receive icmp packet failed!");
+	    }
+	    // Check identifier and sequence number
+	    
+	    // Calculate the response time
+	    gettimeofday(&end, NULL);
+	    
+	    // Get source hostname and ip address 
             getnameinfo((struct sockaddr *)&recvAddr, sizeof(recvAddr), hostname[c], sizeof(hostname[c]), NULL, 0, 0); 
             strcpy(srcIP[c], inet_ntoa(recvIP->ip_src));
             if(icmpType == 0){
