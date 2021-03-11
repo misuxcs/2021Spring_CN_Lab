@@ -29,12 +29,12 @@ char *DNSLookup(char *host){
 }
 
 uint16_t checksum(uint32_t type, uint32_t identifier, uint32_t sequence){
-	uint32_t sum1 = type + identifier + sequence;
+    uint32_t sum1 = type + identifier + sequence;
 	uint16_t higherbit = sum1 >> 16;
 	uint16_t lowerbit = sum1 & 65535;
 	uint16_t sum2 = higherbit + lowerbit;
 	uint16_t complement = ~sum2;
-	return complement;
+	return htons(complement);
 }
 
 int main(int argc, char *argv[]){
@@ -63,9 +63,11 @@ int main(int argc, char *argv[]){
     if(setsockopt(icmpfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0){
     	perror("setsockopt failed\n");
     }
+    /*
     if(setsockopt(icmpfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0){
     	perror("setsockopt failed\n");
     }
+    */
 
     int finish = 0; // if the packet reaches the destination
     int maxHop = 64; // maximum hops
@@ -85,14 +87,13 @@ int main(int argc, char *argv[]){
             // TODO
 	    sendICMP.icmp_type = 8;
 	    sendICMP.icmp_code = 0;
-	    sendICMP.icmp_hun.ih_idseq.icd_id = 318;
-	    sendICMP.icmp_hun.ih_idseq.icd_seq = seq;
-	    seq++;
+	    sendICMP.icmp_hun.ih_idseq.icd_id = htons(318);
+	    sendICMP.icmp_hun.ih_idseq.icd_seq = htons(seq);
             
 	    // Checksum
             // TODO
-	    sendICMP.icmp_cksum = checksum(8, 318, seq);
-            
+	    sendICMP.icmp_cksum = checksum(2048, 318, seq);
+        seq++;
 	    // Send the icmp packet to destination
             // TODO
        	    if(sendto(icmpfd, (void* )&sendICMP, sizeof(sendICMP), 0, (struct sockaddr*)&sendAddr, sizeof(struct sockaddr)) < 0){
