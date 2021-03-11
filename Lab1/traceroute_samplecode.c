@@ -55,10 +55,10 @@ int main(int argc, char *argv[]){
     struct timeval timeout;
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
-    if(setsockopt(icmpfdd, SOL_SOLKET, SO_RCVTIMEO, sizeof(timeout)) < 0){
+    if(setsockopt(icmpfd, SOL_SOLKET, SO_RCVTIMEO, sizeof(timeout)) < 0){
     	error("setsockopt failed\n");
     }
-    if(setsockopt(icmpfdd, SOL_SOLKET, SO_SNDTIMEO, sizeof(timeout)) < 0){
+    if(setsockopt(icmpfd, SOL_SOLKET, SO_SNDTIMEO, sizeof(timeout)) < 0){
     	error("setsockopt failed\n");
     }
 
@@ -78,17 +78,19 @@ int main(int argc, char *argv[]){
 	for(int c = 0; c < count; c++){
             // Set ICMP Header
             // TODO
-		ICMPHeader icmpHeader;
-		icmpHeader.Type = 8;
-		icmpHeader.Code = 0;
-		icmpHeader.Identifier = 318;
-		icmpHeader.Sequence_Number = c*h;  
+	    ICMPHeader icmpHeader;
+	    icmpHeader.Type = 8;
+	    icmpHeader.Code = 0;
+	    icmpHeader.Identifier = 318;
+	    icmpHeader.Sequence_Number = c*h;  
             // Checksum
             // TODO 
-		icmpHeader.Checksum = ;
+	    icmpHeader.Checksum = ;
             // Send the icmp packet to destination
             // TODO
-        
+       	    if(sendto(icmpfd, icmpHeader, sizeof(icmpHeader), 0, (struct sockaddr*)&sendAddr, sizeof(sockaddr)) < 0){
+		error("Send icmp packet failed!");
+	    }
             // Recive ICMP reply, need to check the identifier and sequence number
             struct ip *recvIP;
             struct icmp *recvICMP;
@@ -100,9 +102,12 @@ int main(int argc, char *argv[]){
             char srcIP[4][32];
             float interval[4] = {};
             memset(&recvAddr, 0, sizeof(struct sockaddr_in));
-            // TODO
-
-            // Get source hostname and ip address 
+            
+	    // TODO
+       	    if(recvfrom(icmpfd, recvBuff, sizeof(recvBuff), 0, (struct sockaddr*)&recvAddr, &recvLength) < 0){
+		error("Receive icmp packet failed!");
+	    }
+	    // Get source hostname and ip address 
             getnameinfo((struct sockaddr *)&recvAddr, sizeof(recvAddr), hostname[c], sizeof(hostname[c]), NULL, 0, 0); 
             strcpy(srcIP[c], inet_ntoa(recvIP->ip_src));
             if(icmpType == 0){
