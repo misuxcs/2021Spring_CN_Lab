@@ -12,14 +12,6 @@
 #include<netdb.h>
 #include<sys/time.h>
 
-typedef struct icmp{
-    unsigned char Type;
-    unsigned char Code;
-    unsigned char Checksum[2];
-    unsigned char Identifier[2];
-    signed char Sequence_Number[2];
-};
-
 char *DNSLookup(char *host){
     // TODO
     struct addrinfo *addr;
@@ -62,11 +54,11 @@ int main(int argc, char *argv[]){
     struct timeval timeout;
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
-    if(setsockopt(icmpfd, SOL_SOLKET, SO_RCVTIMEO, sizeof(timeout)) < 0){
-    	error("setsockopt failed\n");
+    if(setsockopt(icmpfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0){
+    	perror("setsockopt failed\n");
     }
-    if(setsockopt(icmpfd, SOL_SOLKET, SO_SNDTIMEO, sizeof(timeout)) < 0){
-    	error("setsockopt failed\n");
+    if(setsockopt(icmpfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0){
+    	perror("setsockopt failed\n");
     }
 
     int finish = 0; // if the packet reaches the destination
@@ -85,20 +77,20 @@ int main(int argc, char *argv[]){
 	for(int c = 0; c < count; c++){
             // Set ICMP Header
             // TODO
-	    sendICMP.Type = 8;
-	    sendICMP.Code = 0;
-	    sendICMP.Identifier = 318;
-	    sendICMP.Sequence_Number = seq;
+	    sendICMP.icmp_type = 8;
+	    sendICMP.icmp_code = 0;
+	    sendICMP.icmp_hun.ih_idseq.icd_id = 318;
+	    sendICMP.icmp_hun.ih_idseq.icd_seq = seq;
 	    seq++;
             
 	    // Checksum
             // TODO
-	    icmpHeader.Checksum = ;
+	    sendICMP.icmp_cksum = ;
             
 	    // Send the icmp packet to destination
             // TODO
-       	    if(sendto(icmpfd, (void *)sendICMP, sizeof(sendICMP), 0, (struct sockaddr*)&sendAddr, sizeof(sockaddr)) < 0){
-		error("Send icmp packet failed!");
+       	    if(sendto(icmpfd, (void* )&sendICMP, sizeof(sendICMP), 0, (struct sockaddr*)&sendAddr, sizeof(struct sockaddr)) < 0){
+		perror("Send icmp packet failed!");
 	    }
 	    gettimeofday(&begin, NULL);
             
@@ -116,8 +108,8 @@ int main(int argc, char *argv[]){
             
 	    // TODO
 	    // Receive icmp packet
-       	    if(recvfrom(icmpfd, recvBuff, sizeof(recvBuff), 0, (struct sockaddr*)&recvAddr, &recvLength) < 0){
-		error("Receive icmp packet failed!");
+       	    if(recvfrom(icmpfd, recvBuf, sizeof(recvBuf), 0, (struct sockaddr*)&recvAddr, &recvLength) < 0){
+		perror("Receive icmp packet failed!");
 	    }
 	    // Check identifier and sequence number
 	    
