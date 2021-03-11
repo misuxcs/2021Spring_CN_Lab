@@ -63,11 +63,10 @@ int main(int argc, char *argv[]){
     if(setsockopt(icmpfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0){
     	perror("setsockopt failed\n");
     }
-    /*
     if(setsockopt(icmpfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0){
     	perror("setsockopt failed\n");
     }
-    */
+    
 
     int finish = 0; // if the packet reaches the destination
     int maxHop = 64; // maximum hops
@@ -122,6 +121,7 @@ int main(int argc, char *argv[]){
 	    
 	    // Calculate the response time
 	    gettimeofday(&end, NULL);
+        printf("recv finish\n");
 	    
 	    // Get source hostname and ip address 
             getnameinfo((struct sockaddr *)&recvAddr, sizeof(recvAddr), hostname[c], sizeof(hostname[c]), NULL, 0, 0); 
