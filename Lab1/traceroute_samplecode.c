@@ -12,6 +12,10 @@
 #include<netdb.h>
 #include<sys/time.h>
 
+
+typedef unsigned short int      uint16_t;  
+typedef unsigned int            uint32_t;
+
 char *DNSLookup(char *host){
     // TODO
     struct addrinfo *addr;
@@ -24,11 +28,13 @@ char *DNSLookup(char *host){
     return inet_ntoa(internetAddr->sin_addr);
 }
 
-unsigned char calcChecksum(unsigned char type, unsigned char id, signed char seq){
-    unsigned char checksum[2];
-    
-    
-    return checksum;
+uint16_t checksum(uint32_t type, uint32_t identifier, uint32_t sequence){
+	uint32_t sum1 = type + identifier + sequence;
+	uint16_t higherbit = sum1 >> 16;
+	uint16_t lowerbit = sum1 & 65535;
+	uint16_t sum2 = higherbit + lowerbit;
+	uint16_t complement = ~sum2;
+	return complement;
 }
 
 int main(int argc, char *argv[]){
@@ -85,7 +91,7 @@ int main(int argc, char *argv[]){
             
 	    // Checksum
             // TODO
-	    sendICMP.icmp_cksum = ;
+	    sendICMP.icmp_cksum = checksum(8, 318, seq);
             
 	    // Send the icmp packet to destination
             // TODO
