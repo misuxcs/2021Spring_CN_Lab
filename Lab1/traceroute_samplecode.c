@@ -32,6 +32,13 @@ char *DNSLookup(char *host){
     return inet_ntoa(internetAddr->sin_addr);
 }
 
+unsigned char calcChecksum(unsigned char type, unsigned char id, signed char seq){
+    unsigned char checksum[2];
+    
+    
+    return checksum;
+}
+
 int main(int argc, char *argv[]){
     char *dest = argv[1];
     char *ip = DNSLookup(dest);
