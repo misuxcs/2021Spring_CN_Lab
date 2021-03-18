@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
     // Set timeout
     // TODO
     struct timeval timeout;
-    timeout.tv_sec = 5;
+    timeout.tv_sec = 1;
     timeout.tv_usec = 0;
     if(setsockopt(icmpfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0){
     	perror("setsockopt failed\n");
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]){
         // Set TTL
         // TODO
         struct timeval rtt[3];
-	    int TTL = 64;
+	    int TTL = h;
 	    setsockopt(icmpfd, IPPROTO_IP, IP_TTL, &TTL, sizeof(TTL));
 	    for(int c = 0; c < count; c++){
             // Set ICMP Header
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]){
 	        // Checksum
             // TODO
             sendICMP.icmp_cksum = checksum(2048, 318, seq);
-            seq++;
+            
             // Send the icmp packet to destination
             // TODO
        	    if(sendto(icmpfd, (void* )&sendICMP, sizeof(sendICMP), 0, (struct sockaddr*)&sendAddr, sizeof(struct sockaddr)) < 0){
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]){
                 if( recvLen < 0){
                     perror("Receive icmp packet failed!");
                 }
-                printf("%d\n", recvLen);
+                printf("\nrecv len: %d\n", recvLen);
                 // Check identifier and sequence number
                 /*
                 for(int i = 0 ; i < recvLen ; i++){
@@ -140,12 +140,12 @@ int main(int argc, char *argv[]){
                 mySeq[1] = *(recvBuf+27);
                 int recvSeq = mySeq[0]*256 + mySeq[1];
                 //printf("SEQ: %d\n", mySeq[0]*256 + mySeq[1]);
-
                 if(recvId == 318 && recvSeq == seq){
                     recvOrNot = 1;
                 }
             }
-            
+            seq++;
+
             char mySrcIP[4];
             mySrcIP[0] = *(recvBuf+12);
             mySrcIP[1] = *(recvBuf+13);
@@ -156,18 +156,17 @@ int main(int argc, char *argv[]){
 
             // Calculate the response time
             gettimeofday(&end, NULL);
-            printf("recv finish\n");
             
-            rtt[c].tv_sec = begin.tv_sec - end.tv_sec;
-            rtt[c].tv_usec = begin.tv_usec - end.tv_usec;
-    
+            
+            rtt[c].tv_sec = end.tv_sec - begin.tv_sec;
+            rtt[c].tv_usec = end.tv_usec - begin.tv_usec;
+            
 	        // Get source hostname and ip address 
             getnameinfo((struct sockaddr *)&recvAddr, sizeof(recvAddr), hostname[c], sizeof(hostname[c]), NULL, 0, 0); 
-            strcpy(srcIP[c], inet_ntoa(recvIP->ip_src));
+            //strcpy(srcIP[c], inet_ntoa(recvIP->ip_src));
             if(icmpType == 0){
                 finish = 1;
             }
-
             // Print the result
             // TODO
             if(c == 0){
