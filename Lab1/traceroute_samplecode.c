@@ -115,12 +115,20 @@ int main(int argc, char *argv[]){
 	        // TODO
 	        // Receive icmp packet
             int recvOrNot = 0;
+            int recvTimeout = 0;
+            int recvTimeLimit = 5;
             while(recvOrNot == 0){
                 int recvLen = recvfrom(icmpfd, recvBuf, sizeof(recvBuf), 0, (struct sockaddr*)&recvAddr, &recvLength);
                 if( recvLen < 0){
-                    perror("Receive icmp packet failed!");
+                    struct timeval now, passed;
+                    gettimeofday(&now, NULL);
+                    passed.tv_sec = now.tv_sec - begin.tv_sec;
+                    if(passed.tv_sec > recvTimeLimit){
+                        recvTimeout = 1;
+                        break;
+                    }
                 }
-                printf("\nrecv len: %d\n", recvLen);
+                //printf("\nrecv len: %d\n", recvLen);
                 // Check identifier and sequence number
                 /*
                 for(int i = 0 ; i < recvLen ; i++){
@@ -129,17 +137,29 @@ int main(int argc, char *argv[]){
                     //if(i % 8 == 0 && i != 0) printf("\n");
                 }
                 */
-                char myId[2];
-                myId[0] = *(recvBuf+24);
-                myId[1] = *(recvBuf+25);
-                int recvId = myId[0]*256 + myId[1];
-                //printf("ID: %d\n", myId[0]*256 + myId[1]);
-                
-                char mySeq[2];
-                mySeq[0] = *(recvBuf+26);
-                mySeq[1] = *(recvBuf+27);
-                int recvSeq = mySeq[0]*256 + mySeq[1];
-                //printf("SEQ: %d\n", mySeq[0]*256 + mySeq[1]);
+                int recvId, recvSeq;
+                icmpType = *(recvBuf+20);
+                if(icmpType == 11){
+                    char myId[2];
+                    myId[0] = *(recvBuf+52);
+                    myId[1] = *(recvBuf+53);
+                    recvId = myId[0]*256 + myId[1];
+                    
+                    char mySeq[2];
+                    mySeq[0] = *(recvBuf+54);
+                    mySeq[1] = *(recvBuf+55);
+                    recvSeq = mySeq[0]*256 + mySeq[1];
+                }else{
+                    char myId[2];
+                    myId[0] = *(recvBuf+24);
+                    myId[1] = *(recvBuf+25);
+                    recvId = myId[0]*256 + myId[1];
+                    
+                    char mySeq[2];
+                    mySeq[0] = *(recvBuf+26);
+                    mySeq[1] = *(recvBuf+27);
+                    recvSeq = mySeq[0]*256 + mySeq[1];
+                }
                 if(recvId == 318 && recvSeq == seq){
                     recvOrNot = 1;
                 }
@@ -157,7 +177,6 @@ int main(int argc, char *argv[]){
             // Calculate the response time
             gettimeofday(&end, NULL);
             
-            
             rtt[c].tv_sec = end.tv_sec - begin.tv_sec;
             rtt[c].tv_usec = end.tv_usec - begin.tv_usec;
             
@@ -172,7 +191,11 @@ int main(int argc, char *argv[]){
             if(c == 0){
                 printf("%d, %s", h, recvSrcIp);
             }
-            printf(", %ld.%03d", rtt[c].tv_sec, rtt[c].tv_usec);
+            if(recvTimeout){
+                printf(", *");
+            }else{
+                printf(", %ld.%03d", rtt[c].tv_sec, rtt[c].tv_usec);
+            }
         }
         printf("\n");
         if(finish){
