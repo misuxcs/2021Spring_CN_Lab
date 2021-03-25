@@ -121,7 +121,7 @@ int main(int argc, char *argv[]){
 	    
 	    // Calculate the response time
 	    gettimeofday(&end, NULL);
-        printf("recv finish\n");
+            printf("recv finish\n");
 	    
 	    // Get source hostname and ip address 
             getnameinfo((struct sockaddr *)&recvAddr, sizeof(recvAddr), hostname[c], sizeof(hostname[c]), NULL, 0, 0); 
