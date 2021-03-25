@@ -43,4 +43,4 @@ app.post("/login", (req, res) => {
 });
 
 app.listen(9090);
-console.log("Start listening!")
+console.log("Start listening on port 9090!")
