@@ -4,6 +4,7 @@
   "description": "cnlab2021",
   "main": "app.js",
   "scripts": {
+    "build": "sudo bash ./setRedirection.sh",
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
