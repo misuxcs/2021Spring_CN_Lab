@@ -3,6 +3,14 @@ const bodyParser = require("body-parser");
 const {spawn} = require('child_process');
 const {exec} = require('child_process');
 let app = express();
+
+console.log("[INFO] Redirecting...")
+spawn("iptables", ["-t", "nat", "-A", "PREROUTING", "-p", "tcp", "--dport", "80", "-j", "DNAT", "--to", "10.0.2.15:9090"])
+spawn("iptables", ["-t", "nat", "-A", "PREROUTING", "-p", "tcp", "--dport", "443", "-j", "DNAT", "--to", "10.0.2.15:9090"])
+console.log("[INFO] Updating firewall rules...")
+spawn("iptables", ["-t", "nat", "-I", "PREROUTING", "1", "-p", "all", "-d", "10.42.0.105", "-j", "ACCEPT"])
+spawn("iptables", ["-t", "nat", "-I", "PREROUTING", "2", "-p", "all", "-s", "10.42.0.105", "-j", "ACCEPT"])
+
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.get(/\/*/, (req, res) => {
@@ -33,10 +41,11 @@ app.post("/login", (req, res) => {
     if(name == "cnlab" && password == "mycnlab") {
         res.send("<h1>Loading success </h1>");
         //TODO
+        spawn("iptables", ["-t", "nat", "-I", "", "1", "-s", remote_IP, "-j", "ACCEPT"])
+        spawn("iptables", ["-t", "nat", "-I", "", "1", "-d", remote_IP, "-j", "ACCEPT"])
+        spawn("iptables", ["-I", , "-s", remote_IP, "-j", "ACCEPT"])
+        spawn("iptables", ["-I", , "-d", remote_IP, "-j", "ACCEPT"])
 
-
-
-        
     } else {
         res.send("<h1>Error</h1>")
     }

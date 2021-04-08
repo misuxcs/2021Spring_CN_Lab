@@ -10,7 +10,8 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     iptables -t nat -I PREROUTING 2 -p all -s 10.42.0.105 -j ACCEPT
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-        # Mac OSX
-else echo -n "[ERROR] $OSTYPE is not support!"
+    # Mac OSX
+    echo -n "[INFO] This is mac!"
+else 
+    echo -n "[ERROR] $OSTYPE is not support!"
 fi
-
