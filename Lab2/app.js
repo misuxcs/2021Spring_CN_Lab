@@ -41,8 +41,12 @@ app.get("/admin", (req, res) => {
             if(lines[i].includes("Chain OUTPUT")) endLine = i;
         }
         console.log(lines[startLine]);
-        for(var i=0; i<lines[startLine].length;i++){
-            console.log(lines[startLine].charCodeAt(i) + " ");
+        for(var i=startLine; i<endLine; i++){
+            var lineInfos = lines[i].split(/ +/);
+            console.log("0 =" + lineInfos[0]);
+            console.log("1 =" + lineInfos[1]);
+            console.log("2 =" + lineInfos[2]);
+            console.log("3 =" + lineInfos[3]);
         }
     })
     res.send(`
