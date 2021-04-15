@@ -5,7 +5,7 @@ const {exec} = require('child_process');
 let app = express();
 
 console.log("[INFO] Redirecting...")
-//spawn("iptables", ["-A", "FORWARD", "-p", "all", "-j", "DROP"])
+spawn("iptables", ["-A", "FORWARD", "-p", "all", "-j", "DROP"])
 spawn("iptables", ["-t", "nat", "-A", "PREROUTING", "-p", "tcp", "--dport", "80", "-j", "DNAT", "--to", "10.0.2.15:9090"])
 spawn("iptables", ["-t", "nat", "-A", "PREROUTING", "-p", "tcp", "--dport", "443", "-j", "DNAT", "--to", "10.0.2.15:9090"])
 
@@ -29,7 +29,7 @@ app.get(/\/*/, (req, res) => {
         );
 });
 
-app.get("/admin", (req, res) => {
+app.post("/admin", (req, res) => {
     let status = spawn("iptables", ["-L", "-v", "-x"])
     status.stdout.on('data', (data)=>{
         console.log(data);
@@ -59,7 +59,7 @@ app.post("/login", (req, res) => {
         //TODO
         console.log("[INFO] Updating firewall rules...")
         spawn("iptables", ["-t", "nat", "-I", "PREROUTING", "1", "-s", remote_ip, "-j", "ACCEPT"])
-        spawn("iptables", ["-t", "nat", "-I", "PREROUTING", "1", "-d", remote_IP, "-j", "ACCEPT"])
+        spawn("iptables", ["-t", "nat", "-I", "PREROUTING", "1", "-d", remote_iP, "-j", "ACCEPT"])
         spawn("iptables", ["-I", "FORWARD", "-s", remote_ip, "-j", "ACCEPT"])
         spawn("iptables", ["-I", "FORWARD", "-d", remote_ip, "-j", "ACCEPT"])
 
