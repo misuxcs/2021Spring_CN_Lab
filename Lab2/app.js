@@ -11,7 +11,7 @@ spawn("iptables", ["-t", "nat", "-A", "PREROUTING", "-p", "tcp", "--dport", "443
 
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.get(/\/*/, (req, res) => {
+app.get(/^\/admin/, (req, res) => {
     let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     let remote_ip = ip.split(":")[3];
     console.log(`${remote_ip} is asking for wifi!`);
@@ -29,7 +29,7 @@ app.get(/\/*/, (req, res) => {
         );
 });
 
-app.post("/admin", (req, res) => {
+app.get("/admin", (req, res) => {
     let status = spawn("iptables", ["-L", "-v", "-x"])
     status.stdout.on('data', (data)=>{
         console.log(data);
