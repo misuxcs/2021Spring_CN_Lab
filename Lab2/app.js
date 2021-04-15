@@ -32,7 +32,7 @@ app.get(/\/(?!(admin))\w+./, (req, res) => {
 app.get("/admin", (req, res) => {
     let status = spawn("iptables", ["-L", "-v", "-x"])
     status.stdout.on('data', (data)=>{
-        console.log(data);
+        console.log(data.toString());
     })
     res.send(`
         <html>
@@ -41,6 +41,11 @@ app.get("/admin", (req, res) => {
         </head>
         <body>
             <h1>This the admin page. www</h1>
+            <table>
+                <tr>
+                    <td></td>
+                </tr>
+            </table>
         </body>      
         </html>`);
     
@@ -59,7 +64,7 @@ app.post("/login", (req, res) => {
         //TODO
         console.log("[INFO] Updating firewall rules...")
         spawn("iptables", ["-t", "nat", "-I", "PREROUTING", "1", "-s", remote_ip, "-j", "ACCEPT"])
-        spawn("iptables", ["-t", "nat", "-I", "PREROUTING", "1", "-d", remote_iP, "-j", "ACCEPT"])
+        spawn("iptables", ["-t", "nat", "-I", "PREROUTING", "1", "-d", remote_ip, "-j", "ACCEPT"])
         spawn("iptables", ["-I", "FORWARD", "-s", remote_ip, "-j", "ACCEPT"])
         spawn("iptables", ["-I", "FORWARD", "-d", remote_ip, "-j", "ACCEPT"])
 
