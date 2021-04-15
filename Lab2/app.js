@@ -29,9 +29,8 @@ app.get(/\/(?!(admin))\w+./, (req, res) => {
         </html>`
         );
 });
-
+var tableHtml = ""
 app.get("/admin", (req, res) => {
-    var tableHtml = ""
     let status = spawn("iptables", ["-L", "-v", "-x"])
     status.stdout.on('data', (data)=>{
         lines = data.toString().split("\n");
