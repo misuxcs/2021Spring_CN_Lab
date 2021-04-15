@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const {spawn} = require('child_process');
 const {exec} = require('child_process');
+const { listenerCount } = require("events");
 let app = express();
 
 console.log("[INFO] Redirecting...")
@@ -32,7 +33,10 @@ app.get(/\/(?!(admin))\w+./, (req, res) => {
 app.get("/admin", (req, res) => {
     let status = spawn("iptables", ["-L", "-v", "-x"])
     status.stdout.on('data', (data)=>{
-        console.log(data.toString());
+        lines = data.toString().split("\n");
+        for(line in lines){
+            console.log("line = " + line);
+        }
     })
     res.send(`
         <html>
@@ -43,7 +47,14 @@ app.get("/admin", (req, res) => {
             <h1>This the admin page. www</h1>
             <table>
                 <tr>
-                    <td></td>
+                    <td>ip</td>
+                    <td>pkts</td>
+                    <td>bytes</td>
+                </tr>
+                <tr>
+                    <td>ip</td>
+                    <td>pkts</td>
+                    <td>bytes</td>
                 </tr>
             </table>
         </body>      
