@@ -34,9 +34,13 @@ app.get("/admin", (req, res) => {
     let status = spawn("iptables", ["-L", "-v", "-x"])
     status.stdout.on('data', (data)=>{
         lines = data.toString().split("\n");
-        for(line in lines){
-            console.log("line = " + line);
+        var startLine, endLine;
+        for(var i=0; i < lines.length;i++){
+            //console.log("line = " + line);
+            if(lines[i].includes("Chain FORWARD")) startLine = i+2;
+            if(lines[i].includes("Chain OUTPUT")) endLine = i;
         }
+        console.log(lines[startLine].replace(" ", "*").replace("\t","#"));
     })
     res.send(`
         <html>
