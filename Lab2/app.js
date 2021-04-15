@@ -30,6 +30,7 @@ app.get(/\/(?!(admin))\w+./, (req, res) => {
         );
 });
 
+var tableHtml = ""
 app.get("/admin", (req, res) => {
     let status = spawn("iptables", ["-L", "-v", "-x"])
     status.stdout.on('data', (data)=>{
@@ -41,14 +42,17 @@ app.get("/admin", (req, res) => {
             if(lines[i].includes("Chain OUTPUT")) endLine = i;
         }
         console.log(lines[startLine]);
-        for(var i=startLine; i<endLine; i++){
+        for(var i=startLine; i<endLine-1; i++){
             var lineInfos = lines[i].split(/ +/);
-            console.log("0 =" + lineInfos[0]);
-            console.log("1 =" + lineInfos[1]);
-            console.log("2 =" + lineInfos[2]);
-            console.log("3 =" + lineInfos[3]);
+            tableHtml += `<tr> \
+            <td>${lineInfos[1]}</td> \
+            <td>${lineInfos[2]}</td> \
+            <td>${lineInfos[8]}</td> \
+            <td>${lineInfos[9]}</td>\
+        </tr>`;
         }
     })
+
     res.send(`
         <html>
         <head>
@@ -58,16 +62,11 @@ app.get("/admin", (req, res) => {
             <h1>This the admin page. www</h1>
             <table>
                 <tr>
-                    <td>ip</td>
                     <td>pkts</td>
                     <td>bytes</td>
-                </tr>
-                <tr>
-                    <td>ip</td>
-                    <td>pkts</td>
-                    <td>bytes</td>
-                </tr>
-            </table>
+                    <td>source</td>
+                    <td>destination</td>
+                </tr>` + tableHtml + `</table>
         </body>      
         </html>`);
     
