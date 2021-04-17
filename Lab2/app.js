@@ -29,8 +29,13 @@ app.get(/\/(?!(admin))\w+./, (req, res) => {
         </html>`
         );
 });
-var tableHtml = ""
+
+function blockUser(){
+    alert("unimplemented function!!");
+}
 app.get("/admin", (req, res) => {
+    var tableArray = []
+    var tableHtml = ""
     let status = spawn("iptables", ["-L", "-v", "-x"])
     status.stdout.on('data', (data)=>{
         lines = data.toString().split("\n");
@@ -48,6 +53,7 @@ app.get("/admin", (req, res) => {
             <td>${lineInfos[2]}</td> \
             <td>${lineInfos[8]}</td> \
             <td>${lineInfos[9]}</td>\
+            <td><button id=${i-startLine} onclick="blockUser()">block!</button></td>\
         </tr>`;
         }
     })
