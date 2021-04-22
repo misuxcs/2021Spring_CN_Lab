@@ -49,7 +49,7 @@ app.get("/admin", (req, res) => {
             <td>${lineInfos[2]}</td> \
             <td>${lineInfos[8]}</td> \
             <td>${lineInfos[9]}</td>\
-            <td><button id=${i-startLine}">block!</button></td>\
+            <td><button name=${i-startLine}">block!</button></td>\
         </tr>`;
         }
     })
@@ -99,7 +99,11 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/block", (req, res) => {
-    console.log(req.body)
+    var blockID;
+    for(const id in req.body){
+       blockID = parseInt(id,10);
+    }
+    spawn("iptables", ["-D", "FORWARD", blockID]);
     res.send("<h1>Block!</h1>")
 });
 
