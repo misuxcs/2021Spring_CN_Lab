@@ -30,12 +30,8 @@ app.get(/\/(?!(admin))\w+./, (req, res) => {
         );
 });
 
-function blockUser(){
-    alert("unimplemented function!!");
-}
+var tableHtml = "";
 app.get("/admin", (req, res) => {
-    var tableArray = []
-    var tableHtml = ""
     let status = spawn("iptables", ["-L", "-v", "-x"])
     status.stdout.on('data', (data)=>{
         lines = data.toString().split("\n");
@@ -53,7 +49,7 @@ app.get("/admin", (req, res) => {
             <td>${lineInfos[2]}</td> \
             <td>${lineInfos[8]}</td> \
             <td>${lineInfos[9]}</td>\
-            <td><button id=${i-startLine} onclick="blockUser()">block!</button></td>\
+            <td><button id=${i-startLine}">block!</button></td>\
         </tr>`;
         }
     })
@@ -64,6 +60,7 @@ app.get("/admin", (req, res) => {
             <meta http-equiv="refresh" content="30" />
         </head>
         <body>
+            <form action="/block" method="post">
             <h1>This the admin page. www</h1>
             <table>
                 <tr>
@@ -73,6 +70,7 @@ app.get("/admin", (req, res) => {
                     <td>destination</td>
                     <td>unblock</td>
                 </tr>` + tableHtml + `</table>
+            </form>
         </body>      
         </html>`);
     
@@ -98,6 +96,11 @@ app.post("/login", (req, res) => {
     } else {
         res.send("<h1>Error</h1>")
     }
+});
+
+app.post("/block", (req, res) => {
+    console.log(req.body)
+    res.send("<h1>Block!</h1>")
 });
 
 app.listen(9090);
