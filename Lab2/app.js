@@ -44,6 +44,9 @@ app.get("/admin", (req, res) => {
         console.log(lines[startLine]);
         for(var i=startLine; i<endLine-1; i++){
             var lineInfos = lines[i].split(/ +/);
+            if(lineInfos[8] === "anywhere" && lineInfos[9] === "anywhere"){            
+                continue;
+            }
             tableHtml += `<tr> \
             <td>${lineInfos[1]}</td> \
             <td>${lineInfos[2]}</td> \
@@ -103,7 +106,31 @@ app.post("/block", (req, res) => {
     for(const id in req.body){
        blockID = parseInt(id,10);
     }
-    spawn("iptables", ["-D", "FORWARD", blockID]);
+    let status = spawn("iptables", ["-L", "-v", "-x"])
+    status.stdout.on('data', (data)=>{
+        lines = data.toString().split("\n");
+        var startLine, endLine;
+        for(var i=0; i < lines.length;i++){
+            //console.log("line = " + line);
+            if(lines[i].includes("Chain FORWARD")) startLine = i+2;
+            if(lines[i].includes("Chain OUTPUT")) endLine = i;
+        }
+            var lineInfos = lines[blockID+startLine].split(/ +/);
+            if(lineInfos[8] === "anywhere"){
+                console.log(lineInfos[9]);
+                spawn("iptables", ["-t", "nat", "-D", "PREROUTING", "-s", lineInfos[9], "-j", "ACCEPT"])
+                spawn("iptables", ["-t", "nat", "-D", "PREROUTING", "-d", lineInfos[9], "-j", "ACCEPT"])
+                spawn("iptables", ["-D", "FORWARD", "-s", lineInfos[9], "-j", "ACCEPT"])
+                spawn("iptables", ["-D", "FORWARD", "-d", lineInfos[9], "-j", "ACCEPT"])
+                
+            }else{
+                console.log(lineInfos[8]);
+                spawn("iptables", ["-t", "nat", "-D", "PREROUTING", "-s", lineInfos[8], "-j", "ACCEPT"])
+                spawn("iptables", ["-t", "nat", "-D", "PREROUTING", "-d", lineInfos[8], "-j", "ACCEPT"])
+                spawn("iptables", ["-D", "FORWARD", "-s", lineInfos[8], "-j", "ACCEPT"])
+                spawn("iptables", ["-D", "FORWARD", "-d", lineInfos[8], "-j", "ACCEPT"])
+            }
+    })
     res.send("<h1>Block!</h1>")
 });
 
