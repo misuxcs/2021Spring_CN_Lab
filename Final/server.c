@@ -39,7 +39,9 @@ int main(int argc, char** argv){
     }
 
     /* setup ifconfig */
-    execute("ifconfig mytun 10.8.0.1/16 mtu %d up", MTU);
+    char cmd[1024];
+    sprintf(cmd, "ifconfig mytun 10.8.0.1/16 mtu %d up", MTU);
+    execute(cmd);
 
     setIptable();
 
@@ -83,4 +85,5 @@ void setIptable(){
     execute("iptables -A FORWARD -s 10.8.0.0/16 -m state --state RELATED,ESTABLISHED -j ACCEPT");
     execute("iptables -A FORWARD -d 10.8.0.0/16 -j ACCEPT");
 }
-void cleanIptable();
+void cleanIptable(){
+}
