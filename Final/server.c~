@@ -14,7 +14,7 @@ int main(int argc, char** argv){
     const int SERVER_PROT = atoi(argv[1]);
     
     if((tunc_fd = open("/dev/net/tun", O_RDWR)) < 0){
-        perror("Cannot open /dev/net/tun");
+        perror("Cannot open /dev/net/tun")
     }
 
     struct ifreq ifr;
@@ -23,13 +23,13 @@ int main(int argc, char** argv){
     ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
     strcpy(ifr.ifr_name, "mytun");
 
-    int e;
+    int e
     if( (e=ioctl(tunc_fd, TUNSETIFF, (void*) &ifr)) < 0 ){
         close(tunc_fd);
         perror("ioctl error");
     }
     
-    close(tunc_fd);
+    close(tun_fd);
     
     return 0;
 }
