@@ -1,21 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/select.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 
-#define MTU 1400
+#define MTU 1024
 #define ERROR(a) {perror(a); exit(1);}
 
 void execute(char* cmd);
 void setIptable();
 void cleanIptable();
+int max(int a, int b);
 
 
 int main(int argc, char** argv){
@@ -65,6 +68,30 @@ int main(int argc, char** argv){
         ERROR("listen failed");
     }
     
+    /*read write data*/
+    fd_set readset;
+    int max_fd = max(tunc_fd, tcp_fd) + 1;
+    char tun_buff[MTU], tcp_buff[MTU];
+    bzero(tun_buff, MTU);
+    bzero(tcp_buff, MTU);
+    
+    while(1) {
+        FD_ZERO(&readset);
+        FD_SET(tunc_fd, &readset);
+        FD_SET(tcp_fd, &readset);
+        if( select(max_fd, &readset, NULL, NULL, NULL) < 0 ){
+            ERROR("select failed");
+        }
+
+        if(FD_ISSET(tunc_fd, &readset)){
+            // read(tunc_fd, tunc_buf, MTU)
+
+        }
+        else if(FD_ISSET(tcp_fd, &readset)){
+
+        }
+        else continue;
+    }
 
     cleanIptable();
     close(tunc_fd);
@@ -86,4 +113,12 @@ void setIptable(){
     execute("iptables -A FORWARD -d 10.8.0.0/16 -j ACCEPT");
 }
 void cleanIptable(){
+    execute("iptables -t nat -D POSTROUTING -s 10.8.0.0/16 ! -d 10.8.0.0/16 -m comment --comment 'vpndemo' -j MASQUERADE");
+    execute("iptables -D FORWARD -s 10.8.0.0/16 -m state --state RELATED,ESTABLISHED -j ACCEPT");
+    execute("iptables -D FORWARD -d 10.8.0.0/16 -j ACCEPT");
+
+}
+
+int max(int a, int b){
+    return ((a > b) ? a : b);
 }
