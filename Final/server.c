@@ -22,6 +22,10 @@ int max(int a, int b);
 
 
 int main(int argc, char** argv){
+    if(argc != 2){
+        ERROR("[ERROR] the usage is : ./server [port_num]")
+    }
+
     int tunc_fd;
     const int SERVER_PROT = atoi(argv[1]);
     
@@ -41,6 +45,7 @@ int main(int argc, char** argv){
         ERROR("[Error] ioctl error");
     }
 
+    printf("[Info] setting ifconfig...");
     /* setup ifconfig */
     char cmd[1024];
     sprintf(cmd, "ifconfig mytun 10.8.0.1/16 mtu %d up", MTU);
