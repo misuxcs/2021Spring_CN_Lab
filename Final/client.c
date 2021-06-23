@@ -69,6 +69,7 @@ int main(int argc, char** argv){
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(SERVER_PROT);
     serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
+    socklen_t serverAddrLen = sizeof(serverAddr);
    
 
     if (connect(tcp_fd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0){
@@ -91,11 +92,32 @@ int main(int argc, char** argv){
         }
 
         if(FD_ISSET(tunc_fd, &readset)){
-            // read(tunc_fd, tunc_buf, MTU)
+            int r = read(tunc_fd, tun_buff, MTU);
+            if (r < 0) {
+                perror("read from tun_fd error");
+                break;
+            }
 
+            printf("Writing to TCP %d bytes ...\n", r);
+            r = sendto(tcp_fd, tcp_buff, r, 0, (const struct sockaddr *)&serverAddr, serverAddrLen);
+            if (r < 0) {
+                perror("sendto tcp_fd error");
+                break;
+            }
         }
         else if(FD_ISSET(tcp_fd, &readset)){
+            int r = recvfrom(tcp_fd, tcp_buff, MTU, 0, (struct sockaddr *)&serverAddr, &serverAddrLen);
+            if (r < 0) {
+                perror("recvfrom tcp_fd error");
+                break;
+            }
 
+            printf("Writing to tun %d bytes ...\n", r);
+            r = write(tunc_fd, tun_buff, r);
+            if (r < 0) {
+                perror("write tun_fd error");
+                break;
+            }
         }
         else continue;
     }
