@@ -95,8 +95,8 @@ int main(int argc, char** argv){
                 perror("read from tun_fd error");
                 break;
             }
-
             printf("Writing to TCP %d bytes ...\n", r);
+            printf("%s\n",tun_buff);
             r = sendto(tcp_fd, tcp_buff, r, 0, (const struct sockaddr *)&serverAddr, serverAddrLen);
             if (r < 0) {
                 perror("sendto tcp_fd error");
