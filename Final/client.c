@@ -30,7 +30,7 @@ int main(int argc, char** argv){
 
     int tunc_fd;
     char SERVER_IP[1024];
-    strcpy(SERVER_IP, argv[1])
+    strcpy(SERVER_IP, argv[1]);
     const int SERVER_PROT = atoi(argv[2]);
     
     if((tunc_fd = open("/dev/net/tun", O_RDWR)) < 0){
